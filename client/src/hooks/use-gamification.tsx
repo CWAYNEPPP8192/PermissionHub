@@ -86,7 +86,10 @@ const defaultBadges: BadgeInfo[] = [
     description: 'Revoked at least 3 unnecessary permissions',
     icon: 'cleaning_services',
     color: 'text-red-500',
-    condition: (factors) => factors.find(f => f.id === 'regulation')?.value ?? 0 >= 5,
+    condition: (factors): boolean => {
+      const value = factors.find(f => f.id === 'regulation')?.value ?? 0;
+      return value >= 5;
+    },
     achieved: false
   },
   {
@@ -95,7 +98,10 @@ const defaultBadges: BadgeInfo[] = [
     description: 'Set expiry times for at least 80% of your permissions',
     icon: 'schedule',
     color: 'text-amber-500',
-    condition: (factors) => factors.find(f => f.id === 'expiry')?.value ?? 0 >= 8,
+    condition: (factors): boolean => {
+      const value = factors.find(f => f.id === 'expiry')?.value ?? 0;
+      return value >= 8;
+    },
     achieved: false
   },
   {
@@ -104,7 +110,10 @@ const defaultBadges: BadgeInfo[] = [
     description: 'Created a financial stream with both time and amount limits',
     icon: 'water_drop',
     color: 'text-green-500',
-    condition: (factors) => factors.find(f => f.id === 'limitation')?.value ?? 0 >= 7,
+    condition: (factors): boolean => {
+      const value = factors.find(f => f.id === 'limitation')?.value ?? 0;
+      return value >= 7;
+    },
     achieved: false
   },
   {
@@ -113,7 +122,7 @@ const defaultBadges: BadgeInfo[] = [
     description: 'Achieved a health score of at least 80',
     icon: 'verified',
     color: 'text-violet-500',
-    condition: (factors) => calculateScore(factors) >= 80,
+    condition: (factors): boolean => calculateScore(factors) >= 80,
     achieved: false
   },
   {
@@ -122,7 +131,10 @@ const defaultBadges: BadgeInfo[] = [
     description: 'Maintained perfect security practices for at least a week',
     icon: 'security',
     color: 'text-emerald-500',
-    condition: (factors) => factors.find(f => f.id === 'protection')?.value ?? 0 >= 9,
+    condition: (factors): boolean => {
+      const value = factors.find(f => f.id === 'protection')?.value ?? 0;
+      return value >= 9;
+    },
     achieved: false
   }
 ];

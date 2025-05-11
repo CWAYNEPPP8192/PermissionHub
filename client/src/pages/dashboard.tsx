@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useGamification } from "@/hooks/use-gamification";
 
 import StatsCard from "@/components/dashboard/stats-card";
 import StreamCard from "@/components/dashboard/stream-card";
@@ -10,20 +11,59 @@ import SessionCard from "@/components/dashboard/session-card";
 import PermissionRequest from "@/components/dashboard/permission-request";
 import CodeExample from "@/components/dashboard/code-example";
 import PermissionModal from "@/components/modals/permission-modal";
+import HealthScore from "@/components/gamification/health-score";
+import BadgesList from "@/components/gamification/badges";
 
 const Dashboard = () => {
   const { toast } = useToast();
+  const { 
+    healthFactors, 
+    badges, 
+    recentAchievements, 
+    updatePermissionCounts,
+    resetRecentAchievements 
+  } = useGamification();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   
   // Fetch permissions and requests
-  const { data: permissions = [], isLoading: isLoadingPermissions } = useQuery({
+  const { data: permissions = [], isLoading: isLoadingPermissions } = useQuery<any[]>({
     queryKey: ['/api/permissions'],
   });
   
-  const { data: permissionRequests = [], isLoading: isLoadingRequests } = useQuery({
+  const { data: permissionRequests = [], isLoading: isLoadingRequests } = useQuery<any[]>({
     queryKey: ['/api/permission-requests'],
   });
+  
+  // Update gamification stats based on permission data
+  useEffect(() => {
+    if (permissions.length > 0) {
+      const timeBoundCount = permissions.filter(p => p.expiryTime).length;
+      const limitedCount = permissions.filter(p => p.maxAmount || p.maxCalls).length;
+      const expiredCount = permissions.filter(p => p.expiryTime && !p.isActive).length;
+      const revokedCount = permissions.filter(p => !p.isActive && !p.expiryTime).length;
+      
+      updatePermissionCounts({
+        total: permissions.length,
+        active: permissions.filter(p => p.isActive).length,
+        expired: expiredCount,
+        revoked: revokedCount,
+        unlimited: permissions.length - limitedCount,
+        timeBound: timeBoundCount
+      });
+    }
+  }, [permissions, updatePermissionCounts]);
+  
+  // Clear recent achievements when they've been shown
+  useEffect(() => {
+    if (recentAchievements.length > 0) {
+      const timer = setTimeout(() => {
+        resetRecentAchievements();
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [recentAchievements, resetRecentAchievements]);
   
   // Get active counts for stats cards
   const activePermissions = permissions.filter((p: any) => p.isActive).length;

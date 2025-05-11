@@ -12,6 +12,7 @@ import Settings from "@/pages/settings";
 import AppLayout from "@/components/layout/app-layout";
 import { WalletProvider } from "@/hooks/use-wallet";
 import { WizardProvider } from "./hooks/use-wizard";
+import { GamificationProvider } from "./hooks/use-gamification";
 import PermissionWizard from "./components/onboarding/permission-wizard";
 import { useToast } from "@/hooks/use-toast";
 
@@ -59,13 +60,15 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <WalletProvider>
-        <WizardProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-            <WizardWithToast />
-          </TooltipProvider>
-        </WizardProvider>
+        <GamificationProvider>
+          <WizardProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+              <WizardWithToast />
+            </TooltipProvider>
+          </WizardProvider>
+        </GamificationProvider>
       </WalletProvider>
     </QueryClientProvider>
   );
