@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -35,35 +35,42 @@ const Dashboard = () => {
     queryKey: ['/api/permission-requests'],
   });
   
-  // Update gamification stats based on permission data
-  useEffect(() => {
+  // Use useCallback to prevent function recreation on each render
+  const updateGamificationOnce = useCallback(() => {
+    if (!permissions.length || isLoadingPermissions) return;
+    
+    const timeBoundCount = permissions.filter((p: any) => p.expiryTime).length;
+    const limitedCount = permissions.filter((p: any) => p.maxAmount || p.maxCalls).length;
+    const expiredCount = permissions.filter((p: any) => p.expiryTime && !p.isActive).length;
+    const revokedCount = permissions.filter((p: any) => !p.isActive && !p.expiryTime).length;
+    
+    // Call the update function with calculated values
     if (permissions.length > 0) {
-      const timeBoundCount = permissions.filter(p => p.expiryTime).length;
-      const limitedCount = permissions.filter(p => p.maxAmount || p.maxCalls).length;
-      const expiredCount = permissions.filter(p => p.expiryTime && !p.isActive).length;
-      const revokedCount = permissions.filter(p => !p.isActive && !p.expiryTime).length;
-      
       updatePermissionCounts({
         total: permissions.length,
-        active: permissions.filter(p => p.isActive).length,
+        active: permissions.filter((p: any) => p.isActive).length,
         expired: expiredCount,
         revoked: revokedCount,
         unlimited: permissions.length - limitedCount,
         timeBound: timeBoundCount
       });
     }
-  }, [permissions, updatePermissionCounts]);
+  }, [permissions, isLoadingPermissions, updatePermissionCounts]);
   
-  // Clear recent achievements when they've been shown
+  // Call update once permissions are loaded
+  useEffect(() => {
+    if (!isLoadingPermissions && permissions.length > 0) {
+      updateGamificationOnce();
+    }
+  }, [isLoadingPermissions, permissions.length]); 
+  
+  // Clear recent achievements after they've been shown
   useEffect(() => {
     if (recentAchievements.length > 0) {
-      const timer = setTimeout(() => {
-        resetRecentAchievements();
-      }, 5000);
-      
+      const timer = setTimeout(resetRecentAchievements, 5000);
       return () => clearTimeout(timer);
     }
-  }, [recentAchievements, resetRecentAchievements]);
+  }, [recentAchievements.length, resetRecentAchievements]);
   
   // Get active counts for stats cards
   const activePermissions = permissions.filter((p: any) => p.isActive).length;
@@ -378,17 +385,31 @@ const Dashboard = () => {
         </div>
       )}
       
-      {/* Implementation Example */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Developer Implementation Example</h2>
+      {/* Permission Health Score */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
+        <div className="lg:col-span-1">
+          <HealthScore 
+            factors={healthFactors}
+            recentAchievements={recentAchievements}
+            className="h-full"
+          />
         </div>
-        
-        <CodeExample
-          title="ERC-7715 Implementation Sample"
-          description="This example demonstrates how to request a single-use token approval permission. Ideal for dApps that want to reset approvals after transactions without requiring manual user intervention."
-          code={formattedCode}
-        />
+        <div className="lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Developer Implementation Example</h2>
+          </div>
+          
+          <CodeExample
+            title="ERC-7715 Implementation Sample"
+            description="This example demonstrates how to request a single-use token approval permission. Ideal for dApps that want to reset approvals after transactions without requiring manual user intervention."
+            code={formattedCode}
+          />
+        </div>
+      </div>
+      
+      {/* Badges Collection */}
+      <div className="mb-8">
+        <BadgesList badges={badges} />
       </div>
       
       {/* Permission Modal */}
