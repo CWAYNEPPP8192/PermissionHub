@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useWallet } from "@/hooks/use-wallet";
+import { useWizard } from "../hooks/use-wizard";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 const Settings = () => {
   const { isConnected, address, network } = useWallet();
   const { toast } = useToast();
+  const { resetWizard, hasCompletedWizard } = useWizard();
   
   const [autoRevokeEnabled, setAutoRevokeEnabled] = useState(true);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -28,6 +30,14 @@ const Settings = () => {
     toast({
       title: "Default Settings Saved",
       description: "Your default permission settings have been updated.",
+    });
+  };
+  
+  const handleRestartTutorial = () => {
+    resetWizard();
+    toast({
+      title: "Tutorial Restarted",
+      description: "The permission wizard tutorial will now start from the beginning.",
     });
   };
   
@@ -110,9 +120,28 @@ const Settings = () => {
                     />
                   </div>
                   
-                  <Button onClick={handleSaveSecuritySettings}>
-                    Save Security Settings
-                  </Button>
+                  <div className="flex flex-col space-y-4">
+                    <Button onClick={handleSaveSecuritySettings}>
+                      Save Security Settings
+                    </Button>
+                    
+                    <div className="border-t pt-4 mt-2">
+                      <div className="flex flex-col space-y-2">
+                        <h3 className="font-medium">User Guidance</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                          Restart the interactive tutorial to learn about ERC-7715 permissions
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          onClick={handleRestartTutorial}
+                          className="flex items-center"
+                        >
+                          <span className="material-icons mr-2 text-primary">school</span>
+                          Restart Permission Wizard
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
