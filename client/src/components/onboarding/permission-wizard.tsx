@@ -153,7 +153,7 @@ const PermissionWizard = ({
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          className="fixed bottom-16 md:bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex items-center justify-center space-x-4 max-w-xl w-full px-4"
+          className="fixed bottom-20 md:bottom-24 left-0 right-0 mx-auto z-50 flex items-center justify-center space-x-4 max-w-xl w-[95%] md:w-[80%] px-4"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}

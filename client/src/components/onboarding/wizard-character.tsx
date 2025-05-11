@@ -52,8 +52,12 @@ const WizardCharacter = ({ type, speaking = false, emotion = 'happy' }: WizardCh
   const mouthShape = speaking
     ? <motion.div 
         className={`w-4 h-3 ${colors.primary} rounded-full mt-2`}
-        animate={{ scaleY: [1, 0.7, 1], scaleX: [1, 1.1, 1] }}
-        transition={{ repeat: Infinity, duration: 0.5 }}
+        animate={{ scaleY: [1, 0.5, 1], scaleX: [1, 1.2, 1] }}
+        transition={{ 
+          repeat: Infinity, 
+          duration: 0.4,
+          ease: "easeInOut"
+        }}
       />
     : emotion === 'happy'
       ? <div className={`w-4 h-1.5 rounded-full ${colors.primary} mt-2`} />
@@ -62,14 +66,26 @@ const WizardCharacter = ({ type, speaking = false, emotion = 'happy' }: WizardCh
         : <div className={`w-5 h-2 rounded-full ${colors.primary} mt-2`} />;
 
   // Bouncing animation
-  const bounceAnimation = speaking || emotion === 'excited'
-    ? { y: [0, -10, 0], transition: { repeat: Infinity, duration: 1.5 } }
+  const bounceAnimation: any = speaking || emotion === 'excited'
+    ? { 
+        y: [0, -10, 0], 
+        transition: { 
+          repeat: Infinity, 
+          duration: 1.5,
+          repeatType: "loop" 
+        } 
+      }
     : {};
 
   return (
     <motion.div 
       className="relative"
-      animate={bounceAnimation}
+      animate={speaking || emotion === 'excited' ? { y: [0, -10, 0] } : {}}
+      transition={speaking || emotion === 'excited' ? { 
+        repeat: Infinity, 
+        duration: 1.5,
+        repeatType: "loop" 
+      } : {}}
     >
       {/* Character body */}
       <motion.div 
